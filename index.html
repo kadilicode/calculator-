@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+
+    <style>
+        /* Inahakikisha vipimo vinakaa sawa */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: black;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone {
+            width: 100%; /* Inachukua upana wote wa simu */
+            max-width: 400px; /* Isizidi hapa kwenye desktop */
+            height: 100vh; /* Inajaa urefu wote wa kioo */
+            background: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Inaweka calculator katikati ya kioo */
+        }
+
+        #display {
+            width: 100%;
+            height: 80px; /* Imekuzwa kidogo ili iwe rahisi kusoma */
+            font-size: 32px;
+            text-align: right;
+            margin-bottom: 20px;
+            border: 2px solid black;
+            padding: 10px;
+            outline: none;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px; /* Nafasi kati ya button */
+        }
+
+        button {
+            height: 70px; /* Button zimekuwa kubwa kwa ajili ya kugusa (touch) */
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid black;
+            background: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        /* Effect ya rangi kubadilika ikiguswa */
+        button:active {
+            background: black;
+            color: white;
+        }
+
+        /* Button ya 'C' na '=' iwe na muonekano wa kipekee kidogo ikihitajika */
+        .clear-btn {
+            grid-column: span 4; /* Inachukua mstari mzima wa chini */
+            background: black;
+            color: white;
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="phone">
+    <input type="text" id="display" readonly placeholder="0">
+
+    <div class="buttons">
+        <button onclick="add('7')">7</button>
+        <button onclick="add('8')">8</button>
+        <button onclick="add('9')">9</button>
+        <button onclick="add('/')">/</button>
+
+        <button onclick="add('4')">4</button>
+        <button onclick="add('5')">5</button>
+        <button onclick="add('6')">6</button>
+        <button onclick="add('*')">*</button>
+
+        <button onclick="add('1')">1</button>
+        <button onclick="add('2')">2</button>
+        <button onclick="add('3')">3</button>
+        <button onclick="add('-')">-</button>
+
+        <button onclick="add('0')">0</button>
+        <button onclick="add('.')">.</button>
+        <button onclick="calculate()">=</button>
+        <button onclick="add('+')">+</button>
+
+        <button class="clear-btn" onclick="clearDisplay()">CLEAR (C)</button>
+    </div>
+</div>
+
+<script>
+    const display = document.getElementById("display");
+
+    function add(value) {
+        display.value += value;
+    }
+
+    function calculate() {
+        try {
+            // Eval inafanya hesabu, tumia try-catch kuzuia error
+            display.value = eval(display.value);
+        } catch (e) {
+            display.value = "Error";
+            setTimeout(clearDisplay, 1500);
+        }
+    }
+
+    function clearDisplay() {
+        display.value = "";
+    }
+</script>
+
+</body>
+  </html>
+  
