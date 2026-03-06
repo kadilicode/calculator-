@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simple Calculator Plus</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #111;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .tabs {
+            display: flex;
+            background: #2c3e50;
+            padding: 5px;
+            gap: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 0;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #3498db;
+        }
+
+        .page {
+            flex: 1;
+            display: none;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Calculator styles */
+        #display {
+            width: 100%;
+            height: 100px;
+            font-size: 40px;
+            text-align: right;
+            margin-bottom: 15px;
+            border: none;
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-btn {
+            height: 75px;
+            font-size: 28px;
+            font-weight: bold;
+            border: none;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .calc-btn:active {
+            background: #3498db;
+            color: white;
+            transform: scale(0.95);
+        }
+
+        .operator {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .equals-btn {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .clear-btn {
+            background: #34495e;
+            color: white;
+            grid-column: span 2;
+        }
+
+        /* Currency Exchange styles */
+        .currency-box {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .currency-title {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+
+        .currency-select {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background: white;
+            font-weight: bold;
+        }
+
+        .currency-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin: 10px 0 20px 0;
+            text-align: right;
+        }
+
+        .swap-icon {
+            text-align: center;
+            font-size: 24px;
+            margin: 5px 0;
+            color: #3498db;
+        }
+
+        .result-box {
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .result-label {
+            color: #bdc3c7;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .result-value small {
+            font-size: 16px;
+            color: #95a5a6;
+        }
+
+        .convert-btn {
+            width: 100%;
+            padding: 18px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .convert-btn:active {
+            background: #2980b9;
+        }
+
+        /* History styles */
+        .history-list {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-time {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .history-calc {
+            font-weight: bold;
+        }
+
+        .clear-history {
+            width: 100%;
+            padding: 15px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        .empty-history {
+            text-align: center;
+            color: #95a5a6;
+            padding: 30px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+<div class="phone">
+    <!-- Tabs za navigation -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchPage('calculator')">Calculator</div>
+        <div class="tab" onclick="switchPage('currency')">Currency</div>
+        <div class="tab" onclick="switchPage('history')">History</div>
+    </div>
+
+    <!-- Page 1: Calculator -->
+    <div id="calculator-page" class="page active">
+        <input type="text" id="display" readonly value="0">
+        <div class="buttons">
+            <button class="calc-btn" onclick="addToDisplay('7')">7</button>
+            <button class="calc-btn" onclick="addToDisplay('8')">8</button>
+            <button class="calc-btn" onclick="addToDisplay('9')">9</button>
+            <button class="calc-btn operator" onclick="addToDisplay('/')">÷</button>
+
+            <button class="calc-btn" onclick="addToDisplay('4')">4</button>
+            <button class="calc-btn" onclick="addToDisplay('5')">5</button>
+            <button class="calc-btn" onclick="addToDisplay('6')">6</button>
+            <button class="calc-btn operator" onclick="addToDisplay('*')">×</button>
+
+            <button class="calc-btn" onclick="addToDisplay('1')">1</button>
+            <button class="calc-btn" onclick="addToDisplay('2')">2</button>
+            <button class="calc-btn" onclick="addToDisplay('3')">3</button>
+            <button class="calc-btn operator" onclick="addToDisplay('-')">−</button>
+
+            <button class="calc-btn" onclick="addToDisplay('0')">0</button>
+            <button class="calc-btn" onclick="addToDisplay('.')">.</button>
+            <button class="calc-btn equals-btn" onclick="calculateResult()">=</button>
+            <button class="calc-btn operator" onclick="addToDisplay('+')">+</button>
+
+            <button class="calc-btn clear-btn" onclick="clearDisplay()">Clear</button>
+            <button class="calc-btn clear-btn" onclick="backspace()">⌫</button>
+        </div>
+    </div>
+
+    <!-- Page 2: Currency Exchange -->
+    <div id="currency-page" class="page">
+        <div class="currency-box">
+            <div class="currency-title">Kutoka (From)</div>
+            <select id="from-currency" class="currency-select" onchange="updateFromCurrency()">
+                <option value="TSh" selected>🇹🇿 TSh - Tanzania Shilling</option>
+                <option value="USD">🇺🇸 USD - US Dollar</option>
+                <option value="EUR">🇪🇺 EUR - Euro</option>
+            </select>
+
+            <div class="swap-icon">↓ ↑</div>
+
+            <div class="currency-title">Kwenda (To)</div>
+            <select id="to-currency" class="currency-select" onchange="updateToCurrency()">
+                <option value="USD" selected>🇺🇸 USD - US Dollar</option>
+                <option value="TSh">🇹🇿 TSh - Tanzania Shilling</option>
+                <option value="EUR">🇪🇺 EUR - Euro</option>
+            </select>
+
+            <div class="currency-title">Kiasi (Amount)</div>
+            <input type="number" id="amount-input" class="currency-input" placeholder="0" value="1000" oninput="convertCurrency()">
+
+            <div class="result-box">
+                <div class="result-label">Matokeo (Result)</div>
+                <div class="result-value" id="result-display">
+                    0.43 <small>$</small>
+                </div>
+            </div>
+
+            <button class="convert-btn" onclick="convertAndSave()">Save & Convert</button>
+        </div>
+    </div>
+
+    <!-- Page 3: History -->
+    <div id="history-page" class="page">
+        <div class="history-list" id="history-list"></div>
+        <button class="clear-history" onclick="clearHistory()">Clear History</button>
+    </div>
+</div>
+
+<script>
+    // Exchange rates
+    const RATES = {
+        TSh: { USD: 1/2300, EUR: 1/2500, TSh: 1 },
+        USD: { TSh: 2300, EUR: 0.92, USD: 1 },
+        EUR: { TSh: 2500, USD: 1.09, EUR: 1 }
+    };
+
+    // Tab switching
+    function switchPage(page) {
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(page + '-page').classList.add('active');
+    }
+
+    // Calculator functions
+    const display = document.getElementById('display');
+
+    function addToDisplay(value) {
+        if (display.value === '0' && value !== '.') {
+            display.value = value;
+        } else {
+            display.value += value;
+        }
+    }
+
+    function calculateResult() {
+        try {
+            let expression = display.value.replace(/×/g, '*').replace(/÷/g, '/');
+            let result = eval(expression);
+            addToHistory(display.value + ' = ' + result);
+            display.value = result;
+        } catch (e) {
+            display.value = 'Error';
+            setTimeout(() => display.value = '0', 1500);
+        }
+    }
+
+    function clearDisplay() {
+        display.value = '0';
+    }
+
+    function backspace() {
+        display.value = display.value.slice(0, -1) || '0';
+    }
+
+    // Currency functions - preventing same currency
+    function updateFromCurrency() {
+        let fromValue = document.getElementById('from-currency').value;
+        let toSelect = document.getElementById('to-currency');
+        
+        // Enable all options first
+        Array.from(toSelect.options).forEach(option => {
+            option.disabled = false;
+        });
+        
+        // Disable the selected from currency in to dropdown
+        Array.from(toSelect.options).forEach(option => {
+            if (option.value === fromValue) {
+                option.disabled = true;
+                // If currently selected value is disabled, change it
+                if (toSelect.value === fromValue) {
+                    // Select first available option
+                    for (let opt of toSelect.options) {
+                        if (!opt.disabled) {
+                            toSelect.value = opt.value;
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        
+        convertCurrency();
+    }
+
+    function updateToCurrency() {
+        let toValue = document.getElementById('to-currency').value;
+        let fromSelect = document.getElementById('from-currency');
+        
+        // Enable all options first
+        Array.from(fromSelect.options).forEach(option => {
+            option.disabled = false;
+        });
+        
+        // Disable the selected to currency in from dropdown
+        Array.from(fromSelect.options).forEach(option => {
+            if (option.value === toValue) {
+                option.disabled = true;
+                // If currently selected value is disabled, change it
+                if (fromSelect.value === toValue) {
+                    // Select first available option
+                    for (let opt of fromSelect.options) {
+                        if (!opt.disabled) {
+                            fromSelect.value = opt.value;
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        
+        convertCurrency();
+    }
+
+    function convertCurrency() {
+        let from = document.getElementById('from-currency').value;
+        let to = document.getElementById('to-currency').value;
+        let amount = parseFloat(document.getElementById('amount-input').value) || 0;
+
+        // Get conversion rate
+        let rate = RATES[from][to];
+        let result = amount * rate;
+
+        // Format result
+        let symbol = '';
+        if (to === 'TSh') symbol = 'TSh';
+        else if (to === 'USD') symbol = '$';
+        else if (to === 'EUR') symbol = '€';
+
+        let formattedResult;
+        if (to === 'TSh') {
+            formattedResult = Math.round(result).toLocaleString();
+        } else {
+            formattedResult = result.toFixed(2);
+        }
+
+        document.getElementById('result-display').innerHTML = `${formattedResult} <small>${symbol}</small>`;
+    }
+
+    function convertAndSave() {
+        let from = document.getElementById('from-currency').value;
+        let to = document.getElementById('to-currency').value;
+        let amount = document.getElementById('amount-input').value;
+        let resultText = document.getElementById('result-display').innerText;
+
+        let historyText = `${amount} ${from} = ${resultText}`;
+        addToHistory(historyText);
+    }
+
+    // History functions
+    let historyItems = [];
+
+    function addToHistory(text) {
+        let time = new Date().toLocaleTimeString();
+        historyItems.unshift({ text, time });
+
+        if (historyItems.length > 15) historyItems.pop();
+        updateHistoryDisplay();
+    }
+
+    function updateHistoryDisplay() {
+        let historyList = document.getElementById('history-list');
+
+        if (historyItems.length === 0) {
+            historyList.innerHTML = '<div class="empty-history">Hakuna history bado</div>';
+            return;
+        }
+
+        let html = '';
+        historyItems.forEach(item => {
+            html += `
+                <div class="history-item">
+                    <span class="history-calc">${item.text}</span>
+                    <span class="history-time">${item.time}</span>
+                </div>
+            `;
+        });
+        historyList.innerHTML = html;
+    }
+
+    function clearHistory() {
+        historyItems = [];
+        updateHistoryDisplay();
+    }
+
+    // Initialize
+    window.onload = function() {
+        updateFromCurrency(); // This will set up disabled options
+        convertCurrency();
+        addToHistory('250 + 150 = 400');
+        addToHistory('1000 TSh = 0.43 $');
+        addToHistory('100 USD = 230,000 TSh');
+    };
+</script>
+</body>
+</html>
