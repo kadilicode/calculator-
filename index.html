@@ -120,7 +120,7 @@
             grid-column: span 2;
         }
 
-        /* Currency Exchange styles */
+        /* Currency Exchange styles - updated */
         .currency-box {
             background: white;
             padding: 20px;
@@ -129,9 +129,20 @@
         }
 
         .currency-title {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+
+        .currency-select {
+            width: 100%;
+            padding: 15px;
             font-size: 18px;
-            color: #2c3e50;
-            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background: white;
             font-weight: bold;
         }
 
@@ -141,29 +152,40 @@
             font-size: 24px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
-            margin-bottom: 15px;
+            margin: 10px 0 20px 0;
             text-align: right;
         }
 
-        .currency-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 15px 0;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-
-        .currency-label {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .currency-value {
+        .swap-icon {
+            text-align: center;
             font-size: 24px;
+            margin: 5px 0;
+            color: #3498db;
+        }
+
+        .result-box {
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .result-label {
+            color: #bdc3c7;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: white;
+            font-size: 32px;
             font-weight: bold;
-            color: #27ae60;
+            text-align: right;
+        }
+
+        .result-value small {
+            font-size: 16px;
+            color: #95a5a6;
         }
 
         .convert-btn {
@@ -236,9 +258,9 @@
 <div class="phone">
     <!-- Tabs za navigation -->
     <div class="tabs">
-        <div class="tab active" onclick="switchPage('calculator')"> Calculator</div>
-        <div class="tab" onclick="switchPage('currency')"> Currency</div>
-        <div class="tab" onclick="switchPage('history')">History</div>
+        <div class="tab active" onclick="switchPage('calculator')">🧮 Calculator</div>
+        <div class="tab" onclick="switchPage('currency')">💱 Currency</div>
+        <div class="tab" onclick="switchPage('history')">📋 History</div>
     </div>
 
     <!-- Page 1: Calculator -->
@@ -270,26 +292,36 @@
         </div>
     </div>
 
-    <!-- Page 2: Currency Exchange -->
+    <!-- Page 2: Currency Exchange (Improved) -->
     <div id="currency-page" class="page">
         <div class="currency-box">
-            <div class="currency-title"> TSh to USD ($)</div>
-            <input type="number" id="tsh-input" class="currency-input" placeholder="0" value="10000">
-            <div class="currency-row">
-                <span class="currency-label">🇺🇸 USD ($):</span>
-                <span class="currency-value" id="usd-output">4.35</span>
+            <div class="currency-title">💰 Kutoka (From)</div>
+            <select id="from-currency" class="currency-select" onchange="convertCurrency()">
+                <option value="TSh" selected>🇹🇿 TSh - Tanzania Shilling</option>
+                <option value="USD">🇺🇸 USD - US Dollar</option>
+                <option value="EUR">🇪🇺 EUR - Euro</option>
+            </select>
+
+            <div class="swap-icon">↓ ↑</div>
+
+            <div class="currency-title">📌 Kwenda (To)</div>
+            <select id="to-currency" class="currency-select" onchange="convertCurrency()">
+                <option value="USD" selected>🇺🇸 USD - US Dollar</option>
+                <option value="TSh">🇹🇿 TSh - Tanzania Shilling</option>
+                <option value="EUR">🇪🇺 EUR - Euro</option>
+            </select>
+
+            <div class="currency-title">💵 Kiasi (Amount)</div>
+            <input type="number" id="amount-input" class="currency-input" placeholder="0" value="1000" oninput="convertCurrency()">
+
+            <div class="result-box">
+                <div class="result-label">Matokeo (Result)</div>
+                <div class="result-value" id="result-display">
+                    0.43 <small>USD</small>
+                </div>
             </div>
 
-            <div style="height: 20px;"></div>
-
-            <div class="currency-title"> EUR to TSh</div>
-            <input type="number" id="eur-input" class="currency-input" placeholder="0" value="100">
-            <div class="currency-row">
-                <span class="currency-label">🇹🇿 TSh:</span>
-                <span class="currency-value" id="tsh-from-eur">250,000</span>
-            </div>
-
-            <button class="convert-btn" onclick="convertCurrency()"> Convert Now</button>
+            <button class="convert-btn" onclick="convertAndSave()">💾 Save & Convert</button>
         </div>
     </div>
 
@@ -303,6 +335,13 @@
 </div>
 
 <script>
+    // Exchange rates (fixed for demo)
+    const RATES = {
+        TSh: { USD: 1/2300, EUR: 1/2500, TSh: 1 },
+        USD: { TSh: 2300, EUR: 0.92, USD: 1 },
+        EUR: { TSh: 2500, USD: 1.09, EUR: 1 }
+    };
+
     // Tab switching
     function switchPage(page) {
         // Update tabs
@@ -327,9 +366,10 @@
 
     function calculateResult() {
         try {
-            let result = eval(display.value.replace(/×/g, '*').replace(/÷/g, '/'));
+            let expression = display.value.replace(/×/g, '*').replace(/÷/g, '/');
+            let result = eval(expression);
             // Save to history
-            addToHistory(display.value + ' = ' + result);
+            addToHistory('🧮 ' + display.value + ' = ' + result);
             display.value = result;
         } catch (e) {
             display.value = 'Error';
@@ -345,23 +385,45 @@
         display.value = display.value.slice(0, -1) || '0';
     }
 
-    // Currency conversion (fixed rates)
-    const USD_TO_TSH = 2300; // 1 USD = 2300 TSh
-    const EUR_TO_TSH = 2500; // 1 EUR = 2500 TSh
-
+    // Currency conversion
     function convertCurrency() {
-        // TSh to USD
-        let tsh = parseFloat(document.getElementById('tsh-input').value) || 0;
-        let usd = (tsh / USD_TO_TSH).toFixed(2);
-        document.getElementById('usd-output').textContent = usd;
+        let from = document.getElementById('from-currency').value;
+        let to = document.getElementById('to-currency').value;
+        let amount = parseFloat(document.getElementById('amount-input').value) || 0;
 
-        // EUR to TSh
-        let eur = parseFloat(document.getElementById('eur-input').value) || 0;
-        let tshFromEur = (eur * EUR_TO_TSH).toLocaleString();
-        document.getElementById('tsh-from-eur').textContent = tshFromEur;
+        // Get the conversion rate
+        let rate = RATES[from][to];
+        let result = amount * rate;
+
+        // Format result based on currency
+        let symbol = '';
+        if (to === 'TSh') symbol = 'TSh';
+        else if (to === 'USD') symbol = '$';
+        else if (to === 'EUR') symbol = '€';
+
+        // Format number
+        let formattedResult;
+        if (to === 'TSh') {
+            formattedResult = Math.round(result).toLocaleString();
+        } else {
+            formattedResult = result.toFixed(2);
+        }
+
+        document.getElementById('result-display').innerHTML = `${formattedResult} <small>${symbol}</small>`;
+    }
+
+    function convertAndSave() {
+        convertCurrency(); // Do conversion first
+        
+        // Get values for history
+        let from = document.getElementById('from-currency').value;
+        let to = document.getElementById('to-currency').value;
+        let amount = document.getElementById('amount-input').value;
+        let resultText = document.getElementById('result-display').innerText;
 
         // Add to history
-        addToHistory(`💱 TSh ${tsh.toLocaleString()} = $${usd} | €${eur} = TSh ${tshFromEur}`);
+        let historyText = `💱 ${amount} ${from} = ${resultText} ${to}`;
+        addToHistory(historyText);
     }
 
     // History functionality
@@ -371,8 +433,8 @@
         let time = new Date().toLocaleTimeString();
         historyItems.unshift({ text, time });
 
-        // Keep only last 10 items
-        if (historyItems.length > 10) historyItems.pop();
+        // Keep only last 15 items
+        if (historyItems.length > 15) historyItems.pop();
 
         updateHistoryDisplay();
     }
@@ -402,17 +464,14 @@
         updateHistoryDisplay();
     }
 
-    // Auto-convert when typing
-    document.getElementById('tsh-input').addEventListener('input', convertCurrency);
-    document.getElementById('eur-input').addEventListener('input', convertCurrency);
-
     // Initial conversion
     window.onload = function() {
         convertCurrency();
         // Add sample history
-        addToHistory('🧮 150 + 250 = 400');
-        addToHistory('🧮 100 × 5 = 500');
+        addToHistory('🧮 250 + 150 = 400');
+        addToHistory('💱 1000 TSh = $0.43 USD');
+        addToHistory('💱 100 USD = 230,000 TSh');
     };
 </script>
 </body>
-    </html>
+</html>
